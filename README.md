@@ -17,4 +17,3 @@ cat << 'EOF' > README.md
   * Jerarquía de errores implementada (`SistemaClinicoException`, `PacienteNoEncontradoException`, `AccesoDenegadoException`, `DniInvalidoException`).
 * **Seguridad y Privacidad (`pe.razuri.seguridad`):** 
   * Implementación de la clase de enmascaramiento de datos personales acorde a los estándares de protección de datos.
-EOF
