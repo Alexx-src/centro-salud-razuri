@@ -6,6 +6,7 @@ package pe.razuri.seguridad;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -44,6 +45,34 @@ public final class SeguridadClave {
             throw new IllegalStateException(
                     "No fue posible proteger la contraseña."
             );
+        }
+    }
+
+    public static boolean verificarClave(String clavePlana, String hashGuardado) {
+        try {
+            String[] partes = hashGuardado.split("\\$");
+            if (partes.length != 2) {
+                return false;
+            }
+            byte[] salt = Base64.getDecoder().decode(partes[0]);
+            byte[] hashOriginal = Base64.getDecoder().decode(partes[1]);
+
+            PBEKeySpec spec = new PBEKeySpec(
+                    clavePlana.toCharArray(),
+                    salt,
+                    ITERACIONES,
+                    LONGITUD
+            );
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(
+                    "PBKDF2WithHmacSHA256"
+            );
+
+            byte[] hashCalculado = factory.generateSecret(spec).getEncoded();
+
+            return MessageDigest.isEqual(hashOriginal, hashCalculado);
+        } catch (Exception e) {
+            return false;
         }
     }
 }

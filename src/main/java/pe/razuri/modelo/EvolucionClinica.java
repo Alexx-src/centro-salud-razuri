@@ -31,9 +31,9 @@ public class EvolucionClinica {
     }
 
     public boolean validarContenido() {
-        return !(diagnostico.isBlank()
-                && tratamiento.isBlank()
-                && notasAtencion.isBlank());
+        return diagnostico != null && !diagnostico.isBlank()
+                || tratamiento != null && !tratamiento.isBlank()
+                || notasAtencion != null && !notasAtencion.isBlank();
     }
 
     public int getIdEvolucion() {
@@ -46,5 +46,17 @@ public class EvolucionClinica {
 
     public int getIdProfesional() {
         return idProfesional;
+    }
+
+    public String getDiagnostico() {
+        return diagnostico;
+    }
+
+    public String getTratamiento() {
+        return tratamiento;
+    }
+
+    public String getNotasAtencion() {
+        return notasAtencion;
     }
 }
