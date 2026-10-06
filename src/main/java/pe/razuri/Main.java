@@ -6,9 +6,11 @@ import pe.razuri.excepcion.SistemaClinicoException;
 import pe.razuri.modelo.*;
 import pe.razuri.seguridad.ControlAcceso;
 import pe.razuri.seguridad.ServicioAutenticacion;
+import pe.razuri.servicio.ServicioAuditoria;
 import pe.razuri.servicio.ServicioHistorial;
 import pe.razuri.servicio.ServicioPaciente;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -18,6 +20,7 @@ public class Main {
     private static final ServicioPaciente servicioPaciente = new ServicioPaciente();
     private static final ControlAcceso controlAcceso = new ControlAcceso();
     private static final BusEventos busEventos = new BusEventos();
+    private static final ServicioAuditoria servicioAuditoria = new ServicioAuditoria();
     private static final ServicioHistorial servicioHistorial =
             new ServicioHistorial(servicioPaciente, controlAcceso, busEventos);
 
@@ -28,6 +31,7 @@ public class Main {
 
     public static void main(String[] args) {
 
+        busEventos.suscribir(servicioAuditoria);
         auth.inicializarDemo();
 
         System.out.println("==============================================");
@@ -57,6 +61,7 @@ public class Main {
                     case "5" -> adjuntarDocumento();
                     case "6" -> registrarProfesionalSalud();
                     case "7" -> cambiarUsuario();
+                    case "8" -> verAuditoria();
                     case "0" -> salir = true;
                     default -> System.out.println("Opcion no valida.");
                 }
@@ -134,8 +139,26 @@ public class Main {
             System.out.println("6. Registrar profesional de salud");
         }
         System.out.println("7. Cambiar usuario");
+        if (esGestion) {
+            System.out.println("8. Ver auditoria de accesos");
+        }
         System.out.println("0. Salir");
         System.out.print("Elige una opcion: ");
+    }
+
+    private static void verAuditoria() {
+        Usuario actual = auth.getUsuarioActual();
+        if (actual.getRol() != Rol.PERSONAL_GESTION) {
+            throw new AccesoDenegadoException("Solo el personal de gestion puede ver la auditoria.");
+        }
+
+        System.out.println("\n--- AUDITORIA DE ACCESOS ---");
+        List<String> resumen = servicioAuditoria.obtenerResumenAcciones();
+        if (resumen.isEmpty()) {
+            System.out.println("Sin registros de auditoria.");
+            return;
+        }
+        resumen.forEach(r -> System.out.println("  - " + r));
     }
 
     private static void registrarPaciente() {
